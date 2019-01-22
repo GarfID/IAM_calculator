@@ -1,20 +1,300 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to {{ title }}!
-  </h1>
-  <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-</div>
-<h2>Here are some links to help you start: </h2>
-<ul>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli/wiki">CLI Documentation</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-  </li>
-</ul>
+<mat-drawer-container class="container">
+    <mat-drawer class="sidenav" mode="side" opened>
+        <mat-card>
+            <mat-card-title>
+                Критерии
+            </mat-card-title>
+            <mat-card-content>
+                <li *ngFor="let critetia of criterias">
+                    {{critetia[1]}}
+                    <button mat-stroked-button class="glue-right" (click)="deleteCriteria(critetia[0])">
+                        Удалить
+                    </button>
+                </li>
+                <div class="sub-row">
+                    <input matInput #newCriteria
+                           (keyup.enter)="addCriteria(newCriteria.value); newCriteria.value=''">
+                    <button mat-stroked-button (click)="addCriteria(newCriteria.value); newCriteria.value=''">Добавить
+                    </button>
+                </div>
+            </mat-card-content>
+        </mat-card>
+        <mat-card>
+            <mat-card-title>
+                Варианты
+            </mat-card-title>
+            <mat-card-content>
+                <li *ngFor="let alternative of alternatives">
+                    {{alternative}}
+                    <button mat-stroked-button class="glue-right"
+                            (click)="deleteAlternative(alternative[0])">Удалить
+                    </button>
+                </li>
+                <div class="sub-row">
+                    <input matInput #newAlternative
+                           (keyup.enter)="addAlternative(newAlternative.value); newAlternative.value=''">
+                    <button mat-stroked-button (click)="addAlternative(newAlternative.value); newAlternative.value=''">
+                        Добавить
+                    </button>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </mat-drawer>
+    <mat-drawer-content>
+        <mat-card>
+            <mat-card-title>
+                Коэфициенты критериев
+            </mat-card-title>
+            <mat-card-content>
+                <mat-grid-list cols="4" rowHeight="100px">
+                    <ng-container
+                            *ngFor="let criteriaRelationRow of criteriaRelationsMatrix; let firstL1 = first; let indexL1 = index;">
+                        <ng-container *ngIf="!firstL1">
+                            <ng-container
+                                    *ngFor="let criteriaRelationCell of criteriaRelationRow; let firstL2 = first; let indexL2 = index">
+                                <ng-container *ngIf="!firstL2">
+                                    <mat-grid-tile
+                                            *ngIf="criteriaRelationsMatrix[0][indexL2] != criteriaRelationsMatrix[indexL1][0]"
+                                            [colspan]="1">
+                                        {{ decodeRellation(criteriaRelationCell)[0] | number }} {{getCritName(criteriaRelationsMatrix[0][indexL2])}}
+                                        | {{getCritName(criteriaRelationsMatrix[indexL1][0])}} {{ decodeRellation(criteriaRelationCell)[1] | number }}
+                                        <mat-slider style="min-width: 128px; max-width: 128px"
+                                                    [max]="8"
+                                                    [min]="-8"
+                                                    [step]="1"
+                                                    [(ngModel)]="criteriaRelationsMatrix[indexL1][indexL2]"
+                                        >
+                                        </mat-slider>
+                                    </mat-grid-tile>
+                                </ng-container>
+                            </ng-container>
+                        </ng-container>
+                    </ng-container>
+                </mat-grid-list>
+            </mat-card-content>
+        </mat-card>
+        <mat-card>
+            <mat-card-title>
+                Коэфициенты вариантов
+            </mat-card-title>
+            <mat-card-content>
+                <mat-grid-list cols="4" rowHeight="100px">
+                    <ng-container
+                            *ngFor="let container of alternativesRelationsMatrix; let indexM0 = index">
+                        <mat-grid-tile [colspan]="4"><h3>Критерий {{getCritName(container[0][0])}}</h3></mat-grid-tile>
+                        <ng-container *ngFor="let row of container; let firstM1 = first; let indexM1 = index">
+                            <ng-container *ngIf="!firstM1">
+                                <ng-container
+                                        *ngFor="let cell of row; let firstM2 = first; let indexM2 = index">
+                                    <ng-container *ngIf="!firstM2">
+                                        <mat-grid-tile
+                                                *ngIf="alternativesRelationsMatrix[indexM0][0][indexM2] != alternativesRelationsMatrix[indexM0][indexM1][0]">
+                                            {{ decodeRellation(cell)[0] | number }} {{getAlterName(alternativesRelationsMatrix[indexM0][0][indexM2])}}
+                                            | {{getAlterName(alternativesRelationsMatrix[indexM0][indexM1][0])}} {{ decodeRellation(cell)[1] | number }}
+                                            <mat-slider
+                                                    [max]="8"
+                                                    [min]="-8"
+                                                    [step]="1"
+                                                    [(ngModel)]="alternativesRelationsMatrix[indexM0][indexM1][indexM2]"
+                                            >
+                                            </mat-slider>
+                                        </mat-grid-tile>
+                                    </ng-container>
+                                </ng-container>
+                            </ng-container>
+                        </ng-container>
+                    </ng-container>
+                </mat-grid-list>
+            </mat-card-content>
+        </mat-card>
+        <mat-card>
+            <mat-card-title>
+                Расчет
+            </mat-card-title>
+            <mat-card-content>
+                <ng-container *ngIf="calculated">
+                    <h4>Ваш выбор: {{getAlterName(winnerIndex)}} ({{winnerPart | number}}%)</h4>
+                </ng-container>
+                <button mat-stroked-button (click)="calculate()">Провести расчет</button>
+                <button mat-stroked-button (click)="detailed = !detailed">Переключить режим детального решения</button>
+                <ng-container *ngIf="detailed">
+                    <h3>Матрица коэфициентов критериев</h3>
+                    <table>
+                        <tr *ngFor="let row of criteriaRelationsMatrix; let firstL1 = first">
+                            <ng-container *ngIf="firstL1; then headRowCRM; else bodyRowCRM">
+                            </ng-container>
+                            <ng-template #headRowCRM>
+                                <ng-container *ngFor="let cell of row; let firstL0 = first">
+                                    <td><span *ngIf="!firstL0">{{getCritName(cell)}}</span></td>
+                                </ng-container>
+                            </ng-template>
+                            <ng-template #bodyRowCRM>
+                                <ng-container *ngFor="let cell of row; let firstL2 = first">
+                                    <ng-container *ngIf="firstL2; then headCellCRM; else bodyCellCRM"></ng-container>
+                                    <ng-template #headCellCRM>
+                                        <td>{{getCritName(cell)}}</td>
+                                    </ng-template>
+                                    <ng-template #bodyCellCRM>
+                                        <td>{{decodeRellation(cell)[1] | number}}</td>
+                                    </ng-template>
+                                </ng-container>
+                            </ng-template>
+                        </tr>
+                    </table>
+                    <h3>Матрицы коэфициентов вариантов</h3>
+                    <ng-container *ngFor="let container of alternativesRelationsMatrix">
+                        <h4>Критерий {{getCritName(container[0][0])}}</h4>
+                        <table>
+                            <tr *ngFor="let row of container; let firstL1 = first">
+                                <ng-container *ngIf="firstL1; then headRowCRM; else bodyRowCRM">
+                                </ng-container>
+                                <ng-template #headRowCRM>
+                                    <ng-container *ngFor="let cell of row; let firstL0 = first">
+                                        <td><span *ngIf="!firstL0">{{getAlterName(cell)}}</span></td>
+                                    </ng-container>
+                                </ng-template>
+                                <ng-template #bodyRowCRM>
+                                    <ng-container *ngFor="let cell of row; let firstL2 = first">
+                                        <ng-container
+                                                *ngIf="firstL2; then headCellCRM; else bodyCellCRM"></ng-container>
+                                        <ng-template #headCellCRM>
+                                            <td>{{getAlterName(cell)}}</td>
+                                        </ng-template>
+                                        <ng-template #bodyCellCRM>
+                                            <td>{{decodeRellation(cell)[1] | number}}</td>
+                                        </ng-template>
+                                    </ng-container>
+                                </ng-template>
+                            </tr>
+                        </table>
+                    </ng-container>
+                    <ng-container *ngIf="calculated">
+                        <h3>Результирующие матрицы</h3>
+                        <h4>Нормализованная матрица критериев</h4>
+                        <table>
+                            <tr *ngFor="let row of filledCriteriaMatrix; let firstL1 = first">
+                                <ng-container *ngIf="firstL1; then headRowCRM; else bodyRowCRM">
+                                </ng-container>
+                                <ng-template #headRowCRM>
+                                    <ng-container *ngFor="let cell of row; let firstL0 = first">
+                                        <td><span *ngIf="!firstL0">{{getCritName(cell)}}</span></td>
+                                    </ng-container>
+                                </ng-template>
+                                <ng-template #bodyRowCRM>
+                                    <ng-container *ngFor="let cell of row; let firstL2 = first">
+                                        <ng-container
+                                                *ngIf="firstL2; then headCellCRM; else bodyCellCRM"></ng-container>
+                                        <ng-template #headCellCRM>
+                                            <td>{{getCritName(cell)}}</td>
+                                        </ng-template>
+                                        <ng-template #bodyCellCRM>
+                                            <td>{{cell | number}}</td>
+                                        </ng-template>
+                                    </ng-container>
+                                </ng-template>
+                            </tr>
+                        </table>
+                        <table>
+                            <tr *ngFor="let row of normalizedCriteriaMatrix; let firstL1 = first">
+                                <ng-container *ngIf="firstL1; then headRowCRM; else bodyRowCRM">
+                                </ng-container>
+                                <ng-template #headRowCRM>
+                                    <ng-container *ngFor="let cell of row; let firstL0 = first">
+                                        <td><span *ngIf="!firstL0">{{getCritName(cell)}}</span></td>
+                                    </ng-container>
+                                </ng-template>
+                                <ng-template #bodyRowCRM>
+                                    <ng-container *ngFor="let cell of row; let firstL2 = first">
+                                        <ng-container
+                                                *ngIf="firstL2; then headCellCRM; else bodyCellCRM"></ng-container>
+                                        <ng-template #headCellCRM>
+                                            <td>{{getCritName(cell)}}</td>
+                                        </ng-template>
+                                        <ng-template #bodyCellCRM>
+                                            <td>{{cell}}</td>
+                                        </ng-template>
+                                    </ng-container>
+                                </ng-template>
+                            </tr>
+                        </table>
+                        <h4>Нормализованная матрицы вариантов</h4>
+                        <ng-container *ngFor="let crit of criterias">
+                            <h5>Критерий {{getCritName(crit[0])}}</h5>
+                            <table>
+                                <tr *ngFor="let row of filledAlternativesMatrix[crit[0]]; let firstL1 = first">
+                                    <ng-container *ngIf="firstL1; then headRowCRM; else bodyRowCRM">
+                                    </ng-container>
+                                    <ng-template #headRowCRM>
+                                        <ng-container *ngFor="let cell of row; let firstL0 = first">
+                                            <td><span *ngIf="!firstL0">{{getAlterName(cell)}}</span></td>
+                                        </ng-container>
+                                    </ng-template>
+                                    <ng-template #bodyRowCRM>
+                                        <ng-container *ngFor="let cell of row; let firstL2 = first">
+                                            <ng-container
+                                                    *ngIf="firstL2; then headCellCRM; else bodyCellCRM"></ng-container>
+                                            <ng-template #headCellCRM>
+                                                <td>{{getAlterName(cell)}}</td>
+                                            </ng-template>
+                                            <ng-template #bodyCellCRM>
+                                                <td>{{cell}}</td>
+                                            </ng-template>
+                                        </ng-container>
+                                    </ng-template>
+                                </tr>
+                            </table>
+                            <table>
+                                <tr *ngFor="let row of normalizedAlternativesMatrix[crit[0]]; let firstL1 = first">
+                                    <ng-container *ngIf="firstL1; then headRowCRM; else bodyRowCRM">
+                                    </ng-container>
+                                    <ng-template #headRowCRM>
+                                        <ng-container *ngFor="let cell of row; let firstL0 = first">
+                                            <td><span *ngIf="!firstL0">{{getAlterName(cell)}}</span></td>
+                                        </ng-container>
+                                    </ng-template>
+                                    <ng-template #bodyRowCRM>
+                                        <ng-container *ngFor="let cell of row; let firstL2 = first">
+                                            <ng-container
+                                                    *ngIf="firstL2; then headCellCRM; else bodyCellCRM"></ng-container>
+                                            <ng-template #headCellCRM>
+                                                <td>{{getAlterName(cell)}}</td>
+                                            </ng-template>
+                                            <ng-template #bodyCellCRM>
+                                                <td>{{cell}}</td>
+                                            </ng-template>
+                                        </ng-container>
+                                    </ng-template>
+                                </tr>
+                            </table>
+                        </ng-container>
+                        <h4>Итоговая матрица</h4>
+                        <table>
+                            <tr *ngFor="let row of resoultingMatrix; let firstL1 = first">
+                                <ng-container *ngIf="firstL1; then headRowCRM; else bodyRowCRM">
+                                </ng-container>
+                                <ng-template #headRowCRM>
+                                    <ng-container *ngFor="let cell of row; let firstL0 = first">
+                                        <td><span *ngIf="!firstL0">{{getCritName(cell)}}</span></td>
+                                    </ng-container>
+                                </ng-template>
+                                <ng-template #bodyRowCRM>
+                                    <ng-container *ngFor="let cell of row; let firstL2 = first">
+                                        <ng-container
+                                                *ngIf="firstL2; then headCellCRM; else bodyCellCRM"></ng-container>
+                                        <ng-template #headCellCRM>
+                                            <td>{{getAlterName(cell)}}</td>
+                                        </ng-template>
+                                        <ng-template #bodyCellCRM>
+                                            <td>{{cell | number}}</td>
+                                        </ng-template>
+                                    </ng-container>
+                                </ng-template>
+                            </tr>
+                        </table>
+                    </ng-container>
+                </ng-container>
+            </mat-card-content>
+        </mat-card>
+    </mat-drawer-content>
+</mat-drawer-container>
 

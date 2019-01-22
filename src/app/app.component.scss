@@ -1,0 +1,36 @@
+.container {
+    width: 100%;
+    min-height: 100%;
+    position: absolute;
+    left:0;
+    right:0;
+    top:0;
+    bottom:0;
+}
+
+.glue-right {
+    position: absolute;
+    right: 30px;
+}
+
+.sidenav{
+    width: 300px;
+}
+
+.sub-row{
+    padding: 15px;
+}
+
+li {
+    padding: 11px;
+}
+
+.mat-figure {
+    flex-direction: column !important;
+}
+
+table {
+    border: 1px solid;
+}
+
+
