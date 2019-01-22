@@ -200,6 +200,17 @@ export class AppComponent {
     }
 
     calculate() {
+        /*Взрываем планеты*/
+
+        this.filledCriteriaMatrix = [[null]];
+        this.normalizedCriteriaMatrix = [[null]];
+        this.filledAlternativesMatrix = [];
+        this.normalizedAlternativesMatrix = [];
+        this.resoultingMatrix = [[null]];
+
+        this.winnerPart = 0;
+        this.winnerIndex = null;
+
         /*Заполняем матрицы*/
         /*Критерии*/
         let size = this.criteriaRelationsMatrix[0].length;
